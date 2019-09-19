@@ -1,6 +1,15 @@
 #import statements
 import numpy.core.multiarray #idk why you have to do this, its a bug ( https://github.com/opencv/opencv/issues/8139 )
-import pygame, cv2, sys, os, time
+import pygame, cv2, sys, os
+
+#if somebody supplies the help argument then print the help menu
+if ('-h' in sys.argv):
+    print('''
+"--pitft" - Starts the program in a mode catered for pitft environments.
+"--gui" - Starts the program in GUI mode.
+"--large-image" - Takes larger images from the camera insteal of small images (CAUTION: This slows down the program significantly).
+''')
+    exit()
 
 #set that it is not in pitft mode
 PITFTMode = False
@@ -72,8 +81,9 @@ if (graphicalMode):
 print('''
 INFO:
 The program {} running in PITFT mode. (--pitft)
-The program {} running in graphical mode. (--gui){}
-'''.format(str('is' if PITFTMode else 'isnt'), str('is' if graphicalMode else 'isnt'), str('\nPress the escape key to exit.' if graphicalMode else '')))
+The program {} running in graphical mode. (--gui)
+The program {} running in large image mode. (--large-image){}
+'''.format(str('is' if PITFTMode else 'isnt'), str('is' if graphicalMode else 'isnt'), str('is' if largeImageMode else 'isnt'), str('\nPress the escape key to exit.' if graphicalMode else '')))
 
 #set up the face cascade
 currentPath = os.getcwd()
@@ -88,9 +98,6 @@ while (running):
     #if the camera image is available then show it on screen
     status, image = camera.read()
     if (status):
-        #write the cameras view to the current camera view path
-        cv2.imwrite(cameraViewPath, image)
-
         #do facial recognition stuff and save final image
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         faces = faceCascade.detectMultiScale(gray, scaleFactor = 1.3, minNeighbors = 3, minSize = (35, 35))
