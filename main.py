@@ -1,6 +1,6 @@
 #import statements
 import numpy.core.multiarray #idk why you have to do this, its a bug ( https://github.com/opencv/opencv/issues/8139 )
-import pygame, cv2, sys, os, time
+import pygame, cv2, sys, os, time, serial
 
 #set that it is not in pitft mode
 PITFTMode = False
@@ -20,6 +20,9 @@ largeImageMode = False
 #if the argument "--large-image" is supplied then switch to large image mode
 if ('--large-image' in sys.argv):
     largeImageMode = True
+
+#initialize a serial connection with the arduino
+arduinoSerial = serial.Serial(sys.argv[-1], 9600)
 
 if (PITFTMode):
     initializeCommands = [
@@ -72,8 +75,9 @@ if (graphicalMode):
 print('''
 INFO:
 The program {} running in PITFT mode. (--pitft)
-The program {} running in graphical mode. (--gui){}
-'''.format(str('is' if PITFTMode else 'isnt'), str('is' if graphicalMode else 'isnt'), str('\nPress the escape key to exit.' if graphicalMode else '')))
+The program {} running in graphical mode. (--gui)
+Doing serial with board at port {}{}
+'''.format(str('is' if PITFTMode else 'isnt'), str('is' if graphicalMode else 'isnt'), str(sys.argv[-1]), str('\nPress the escape key to exit.' if graphicalMode else '')))
 
 #set up the face cascade
 currentPath = os.getcwd()
@@ -107,6 +111,24 @@ while (running):
             cv2.rectangle(image, (int(x + (w / 2)), y), (int(x + (w / 2)), y + h), (0, 255, 0), 2)
             cv2.rectangle(image, (x, int(y + (h / 2))), (x + w, int(y + (h / 2))), (0, 255, 0), 2)
             cv2.imwrite(cameraViewPath, image)
+
+            #calculate the adjustments that are needed to be made by serial connection
+            adjustments = ['-', '-']
+            oneThirdOfScreen = [image.shape[0] // 3, image.shape[1] // 3]
+            centerOfFace = [x + (w // 2), y + (h // 2)]
+            if (centerOfFace[0] < oneThirdOfScreen[0]):
+                adjustments[0] = '1'
+            elif (centerOfFace[0] > oneThirdOfScreen[0] * 2):
+                adjustments[0] = '2'
+            if (centerOfFace[1] < oneThirdOfScreen[1]):
+                adjustments[1] = '3'
+            elif (centerOfFace[1] > oneThirdOfScreen[1] * 2):
+                adjustments[1] = '4'
+
+            #send adjustments over serial
+            for adjustment in adjustments:
+                if (adjustment != '-'):
+                    arduinoSerial.write(adjustment.encode())
 
         #draw the image to the screen and center it if graphical mode is on
         if (graphicalMode):
