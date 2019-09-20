@@ -20,7 +20,7 @@
 *^ Layout of the circuit*
 
 ***Step 2:***
-*Hook the camera up to the servos like in the image below, or and way that they can rotate on both the X and Y axis:*
+*Hook the camera up to the servos like in the image below, or any way that they can rotate on both the X and Y axis:*
 ![](https://i.imgur.com/5nk3ivh.jpg?raw=true)
 *The lego battery pack and base arent nessecary, I just used them as the support base since I was running low on objects to use.*
 
