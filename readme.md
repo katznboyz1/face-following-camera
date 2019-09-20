@@ -4,9 +4,13 @@
 
 **Requirements:**
 *-Arduino UNO*
+
 *-Breadboard*
+
 *-2 Servos*
+
 *-Camera*
+
 *-Any machine capable of running python 3*
 
 ***Step 1:***
@@ -21,4 +25,5 @@
 
 ***Step 3:***
 *Upload the sketch to the arduino and then run the python program.*
+
 *The arguments for the python program are "main.py [cameraNumber] [arduinoSerialPort]"*
