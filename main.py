@@ -42,7 +42,7 @@ if (PITFTMode):
     os.putenv('SDL_MOUSEDRV', 'TSLIB')
 
 #initialize the opencv camera and set up the camera image path
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(int(sys.argv[-2]))
 cameraViewPath = './camera-view.jpg'
 
 
@@ -92,9 +92,6 @@ while (running):
     #if the camera image is available then show it on screen
     status, image = camera.read()
     if (status):
-        #write the cameras view to the current camera view path
-        cv2.imwrite(cameraViewPath, image)
-
         #do facial recognition stuff and save final image
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         faces = faceCascade.detectMultiScale(gray, scaleFactor = 1.3, minNeighbors = 3, minSize = (35, 35))
@@ -110,20 +107,23 @@ while (running):
             x, y, w, h = faces[0]
             cv2.rectangle(image, (int(x + (w / 2)), y), (int(x + (w / 2)), y + h), (0, 255, 0), 2)
             cv2.rectangle(image, (x, int(y + (h / 2))), (x + w, int(y + (h / 2))), (0, 255, 0), 2)
-            cv2.imwrite(cameraViewPath, image)
 
             #calculate the adjustments that are needed to be made by serial connection
             adjustments = ['-', '-']
-            oneThirdOfScreen = [image.shape[0] // 3, image.shape[1] // 3]
             centerOfFace = [x + (w // 2), y + (h // 2)]
+            oneThirdOfScreen = [image.shape[1] // 3, image.shape[0] // 3]
+
+            #send the signals to move the camera via serial
             if (centerOfFace[0] < oneThirdOfScreen[0]):
-                adjustments[0] = '1'
-            elif (centerOfFace[0] > oneThirdOfScreen[0] * 2):
-                adjustments[0] = '2'
+                adjustments[0] = '4'
+            if (centerOfFace[0] > oneThirdOfScreen[0] * 2):
+                adjustments[0] = '3'
             if (centerOfFace[1] < oneThirdOfScreen[1]):
-                adjustments[1] = '3'
-            elif (centerOfFace[1] > oneThirdOfScreen[1] * 2):
-                adjustments[1] = '4'
+                adjustments[1] = '1'
+            if (centerOfFace[1] > oneThirdOfScreen[1] * 2):
+                adjustments[1] = '2'
+            
+            cv2.imwrite(cameraViewPath, image)
 
             #send adjustments over serial
             for adjustment in adjustments:
