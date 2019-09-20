@@ -3,6 +3,7 @@
 **This is a set of programs and instructions to make a camera that follows your face.**
 
 **Requirements:**
+
 *-Arduino UNO*
 
 *-Breadboard*
